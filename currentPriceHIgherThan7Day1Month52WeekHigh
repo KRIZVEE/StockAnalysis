@@ -1,0 +1,56 @@
+function sendCurrentPriceLowerThan7DayLow() {
+
+  var ss = SpreadsheetApp.getActiveSpreadsheet()
+  var email_sheet=ss.getSheetByName('emailListSheet');
+  var main_sheet = ss.getSheetByName('testFinalVersionSheet');
+  var numOfCol = main_sheet.getLastColumn();
+  var subject = 'this is a subject text';
+  var message = 'this is a message text';
+  var tickerSymbol = "XYZ";
+  
+  for (var i = 3; i < numOfCol+1; i++){
+    var fiftyTwoWeekHighValue = main_sheet.getRange(6,i).getValue();
+    var sevenDayHighValue = main_sheet.getRange(10,i).getValue();
+    var oneMonthHighValue = main_sheet.getRange(23,i).getValue();
+    var currentValue = main_sheet.getRange(12,i).getValue();
+    var diffPrvDayCurrent = main_sheet.getRange(15,i).getValue();
+    tickerSymbol = main_sheet.getRange(2,i).getValue();  
+    // higher  than 52 week HIGH
+    if(currentValue >= fiftyTwoWeekHighValue){
+  
+      subject = tickerSymbol + ' current value is : ' + currentValue + ' is higher than 52 - WEEK HIGH value : ' + fiftyTwoWeekHighValue;
+      message = 'Hey, Please have a look , ' + tickerSymbol + ' is ' +Math.round(diffPrvDayCurrent*100,2)+ "% high from previous day closing and it's also higher than last 52 - week high value ";
+      var n=email_sheet.getLastRow();
+      for (var j = 2; j < n+1 ; j++ ) {
+      var emailAddress = email_sheet.getRange(j,2).getValue();
+      MailApp.sendEmail(emailAddress, subject, message);
+    }
+    continue;
+    }
+    // higher than a month but lower then 52 week
+    if(currentValue >= oneMonthHighValue && currentValue < fiftyTwoWeekHighValue){
+  
+      subject = tickerSymbol + ' current value is : ' + currentValue + ' is higher than 1 - MONTH HIGH value : ' + oneMonthHighValue;
+      message = 'Hey, Please have a look , ' + tickerSymbol + ' is ' +Math.round(diffPrvDayCurrent*100,2)+ "% low from previous day closing and it's also higher than one month high value ";
+      var n=email_sheet.getLastRow();
+      for (var j = 2; j < n+1 ; j++ ) {
+      var emailAddress = email_sheet.getRange(j,2).getValue();
+      MailApp.sendEmail(emailAddress, subject, message);
+    }
+    continue;
+    }
+    // higher than 7 days but lower than one-month high and 52 week high value
+    if(currentValue >= sevenDayHighValue  && currentValue < oneMonthHighValue && currentValue < fiftyTwoWeekHighValue){
+  
+      subject = tickerSymbol + ' current value is : ' + currentValue + ' is higher than 7 - DAY HIGH value : ' + sevenDayHighValue;
+      message = 'Hey, Please have a look , ' + tickerSymbol + ' is ' +Math.round(diffPrvDayCurrent*100,2)+ "% high from previous day closing and it's also higher than past 7 days ";
+      var n=email_sheet.getLastRow();
+      for (var j = 2; j < n+1 ; j++ ) {
+      var emailAddress = email_sheet.getRange(j,2).getValue();
+      MailApp.sendEmail(emailAddress, subject, message);
+    }
+    }
+  }
+  }
+  
+  
